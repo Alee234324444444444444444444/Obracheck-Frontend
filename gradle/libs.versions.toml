@@ -7,7 +7,15 @@ junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
-composeBom = "2024.09.00"
+composeBom = "2025.07.00"
+moshi = "1.15.2"
+
+# Nuevos para red / corutinas / navegacion e imagenes
+retrofit = "3.0.0" #HTTP Client
+coroutines = "1.10.2" #Concurrencia (paralelismo)
+lifecycleVmKtx = "2.9.2" #ViewModel + coroutines
+navCompose = "2.9.3" # Navegacion con Compose
+coil = "2.7.0" # Carga de imagenes
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +32,13 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" } # cliente http
+retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" } # conversor JSON
+coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines"} # Corutinas para hilos de red
+lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleVmKtx" } # ViewModel scope
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navCompose" } # Navegacion
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" } # manejo imagenes
+moshi-kotlin  = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -56,4 +56,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.moshi)
+    implementation(libs.coroutines.android)
+    implementation(libs.lifecycle.viewmodel)
+    implementation(libs.navigation.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.moshi.kotlin)
 }
