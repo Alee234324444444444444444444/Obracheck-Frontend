@@ -26,10 +26,15 @@ class UserViewModel(
         onResult(repo.getUserById(id))
     }
 
-    fun createUser(request: CreateUserRequestDto, onComplete: () -> Unit) = viewModelScope.launch {
-        repo.createUser(request)
-        loadUsers()
-        onComplete()
+    fun createUser(request: CreateUserRequestDto, onComplete: (Long?) -> Unit) = viewModelScope.launch {
+        try {
+            val createdUser = repo.createUser(request)
+            loadUsers()
+            onComplete(createdUser.id)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            onComplete(null)
+        }
     }
 
     fun updateUser(id: Long, request: CreateUserRequestDto, onComplete: () -> Unit) = viewModelScope.launch {

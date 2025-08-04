@@ -7,93 +7,93 @@ import retrofit2.http.*
 interface ApiService {
 
     // -------------------- SITES --------------------
-    @GET("sites")
+    @GET("api/sites")
     suspend fun listSites(): List<SiteDto>
 
-    @GET("sites/{id}")
+    @GET("api/sites/{id}")
     suspend fun getSiteById(@Path("id") id: Long): SiteDto
 
-    @POST("sites")
+    @POST("api/sites")
     suspend fun createSite(@Body request: CreateSiteRequestDto): SiteDto
 
-    @PUT("sites/{id}")
+    @PUT("api/sites/{id}")
     suspend fun updateSite(@Path("id") id: Long, @Body request: CreateSiteRequestDto): SiteDto
 
-    @DELETE("sites/{id}")
+    @DELETE("api/sites/{id}")
     suspend fun deleteSite(@Path("id") id: Long)
 
     // -------------------- USERS --------------------
-    @GET("users")
+    @GET("api/users")
     suspend fun listUsers(): List<UserDto>
 
-    @GET("users/{id}")
-    suspend fun getUserById(@Path("id") id: Long): UserDto
-
-    @POST("users")
+    @POST("api/users")
     suspend fun createUser(@Body request: CreateUserRequestDto): UserDto
 
-    @PUT("users/{id}")
+    @GET("api/users/{id}")
+    suspend fun getUserById(@Path("id") id: Long): UserDto
+
+    @PUT("api/users/{id}")
     suspend fun updateUser(@Path("id") id: Long, @Body request: CreateUserRequestDto): UserDto
 
-    @DELETE("users/{id}")
+    @DELETE("api/users/{id}")
     suspend fun deleteUser(@Path("id") id: Long)
 
     // -------------------- WORKERS --------------------
-    @GET("workers")
+    @GET("api/workers")
     suspend fun listWorkers(): List<WorkerDto>
 
-    @GET("workers/{id}")
+    @GET("api/workers/{id}")
     suspend fun getWorkerById(@Path("id") id: Long): WorkerDto
 
-    @POST("workers")
+    @POST("api/workers")
     suspend fun createWorker(@Body request: CreateWorkerRequestDto): WorkerDto
 
-    @PUT("workers/{id}")
+    @PUT("api/workers/{id}")
     suspend fun updateWorker(@Path("id") id: Long, @Body request: CreateWorkerRequestDto): WorkerDto
 
-    @DELETE("workers/{id}")
+    @DELETE("api/workers/{id}")
     suspend fun deleteWorker(@Path("id") id: Long)
 
     // -------------------- PROGRESSES --------------------
-    @GET("progresses")
+    @GET("api/progresses")
     suspend fun listProgresses(): List<ProgressDto>
 
-    @GET("progresses/{id}")
+    @GET("api/progresses/{id}")
     suspend fun getProgressById(@Path("id") id: Long): ProgressDto
 
-    @POST("progresses")
+    @POST("api/progresses")
     suspend fun createProgress(@Body request: CreateProgressRequestDto): ProgressDto
 
-    @PUT("progresses/{id}")
+    @PUT("api/progresses/{id}")
     suspend fun updateProgress(@Path("id") id: Long, @Body request: CreateProgressRequestDto): ProgressDto
 
-    @DELETE("progresses/{id}")
+    @DELETE("api/progresses/{id}")
     suspend fun deleteProgress(@Path("id") id: Long)
 
     // -------------------- EVIDENCES --------------------
-    @GET("evidences")
+    @GET("api/evidences")
     suspend fun listEvidences(): EvidenceListResponseDto
 
-    @GET("evidences/{id}")
+    @GET("api/evidences/{id}")
     suspend fun getEvidenceById(@Path("id") id: Long): EvidenceDto
 
     @Multipart
-    @POST("evidences/upload")
+    @POST("api/evidences/upload")
     suspend fun uploadEvidence(
         @Part file: MultipartBody.Part,
         @Part("progressId") progressId: Long
     ): EvidenceUploadResponseDto
 
     @Multipart
-    @PUT("evidences/{id}")
+    @PUT("api/evidences/{id}")
     suspend fun updateEvidence(
         @Path("id") id: Long,
         @Part file: MultipartBody.Part
     ): EvidenceUploadResponseDto
 
-    @GET("evidences/{id}/download")
+    @GET("api/evidences/{id}/download")
     suspend fun downloadEvidence(@Path("id") id: Long): ByteArray
 
-    @DELETE("evidences/{id}")
+    @DELETE("api/evidences/{id}")
     suspend fun deleteEvidence(@Path("id") id: Long)
 }

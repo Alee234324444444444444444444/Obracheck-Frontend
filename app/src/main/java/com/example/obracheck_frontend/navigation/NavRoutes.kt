@@ -1,8 +1,11 @@
 package com.example.obracheck_frontend.navigation
 
 object NavRoutes {
-    // Nuevas rutas
-    const val SITE_LIST = "sitelist"
-    const val SITE_FORM = "siteform?id={id}"
-}
+    const val LOGIN = "login"
+    const val SITE_LIST = "sitelist/{userId}"
+    const val SITE_FORM = "siteform?id={id}&userId={userId}"
+    const val WORKER_LIST = "workerlist/{siteId}"
+    const val WORKER_FORM = "workerform/{siteId}?editId={editId}"
 
+
+}

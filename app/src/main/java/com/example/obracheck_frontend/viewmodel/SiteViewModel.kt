@@ -16,12 +16,11 @@ class SiteViewModel(
     private val _sites = MutableStateFlow<List<Site>>(emptyList())
     val sites: StateFlow<List<Site>> = _sites
 
-    fun loadSites() = viewModelScope.launch {
-        try {
-            _sites.value = repo.getAllSites()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            _sites.value = emptyList()
+
+    fun loadSitesByUser(userId: Long) {
+        viewModelScope.launch {
+            val result = repo.getSitesByUser(userId)
+            _sites.value = result
         }
     }
 
@@ -34,30 +33,30 @@ class SiteViewModel(
         }
     }
 
-    fun createSite(request: CreateSiteRequestDto, onComplete: () -> Unit) = viewModelScope.launch {
+    fun createSite(userId: Long, request: CreateSiteRequestDto, onComplete: () -> Unit) = viewModelScope.launch {
         try {
             repo.createSite(request)
-            loadSites()
+            loadSitesByUser(userId) // recargar los sitios de ese usuario
             onComplete()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun updateSite(id: Long, request: CreateSiteRequestDto, onComplete: () -> Unit) = viewModelScope.launch {
+    fun updateSite(userId: Long, id: Long, request: CreateSiteRequestDto, onComplete: () -> Unit) = viewModelScope.launch {
         try {
             repo.updateSite(id, request)
-            loadSites()
+            loadSitesByUser(userId)
             onComplete()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun deleteSite(id: Long, onComplete: () -> Unit) = viewModelScope.launch {
+    fun deleteSite(userId: Long, id: Long, onComplete: () -> Unit) = viewModelScope.launch {
         try {
             repo.deleteSite(id)
-            loadSites()
+            loadSitesByUser(userId)
             onComplete()
         } catch (e: Exception) {
             e.printStackTrace()
