@@ -425,7 +425,7 @@ fun WorkerCard(
                                 },
                                 text = {
                                     Text(
-                                        "Editar",
+                                        "Actualizar",
                                         color = Brand,
                                         fontWeight = FontWeight.Medium
                                     )
