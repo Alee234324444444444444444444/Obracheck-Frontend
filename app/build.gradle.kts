@@ -65,5 +65,4 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.moshi.kotlin)
     implementation("androidx.compose.material:material-icons-extended")
-
 }

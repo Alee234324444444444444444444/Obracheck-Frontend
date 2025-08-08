@@ -1,14 +1,17 @@
 package com.example.obracheck_frontend.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.obracheck_frontend.ui.login.LoginScreen
 import com.example.obracheck_frontend.ui.site.SiteFormScreen
 import com.example.obracheck_frontend.ui.site.SiteListScreen
+import com.example.obracheck_frontend.ui.login.WelcomeScreen
 import com.example.obracheck_frontend.ui.worker.WorkerFormScreen
 import com.example.obracheck_frontend.ui.worker.WorkerListScreen
 import com.example.obracheck_frontend.viewmodel.SiteViewModel
@@ -29,6 +32,25 @@ fun AppNavGraph(navController: NavHostController) {
             LoginScreen(
                 navController = navController,
                 viewModel = userViewModel
+            )
+        }
+
+
+        composable(
+            route = NavRoutes.WELCOME,
+            arguments = listOf(
+                navArgument("userId") { type = NavType.LongType },
+                navArgument("name")   { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getLong("userId") ?: -1L
+            val encodedName = backStackEntry.arguments?.getString("name") ?: ""
+            val userName = Uri.decode(encodedName)
+
+            WelcomeScreen(
+                navController = navController,
+                userId = userId,
+                userName = userName
             )
         }
 
