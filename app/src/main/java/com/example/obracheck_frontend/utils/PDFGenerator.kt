@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.os.Environment
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.core.graphics.toColorInt
 import com.example.obracheck_frontend.model.domain.Attendance
@@ -170,33 +171,25 @@ class PDFGenerator {
             canvas.drawText("RESUMEN", MARGIN.toFloat(), y, headerPaint)
             y += 25
 
-            // Stats - CORREGIDO para mostrar solo los que tienen registro
+            // Stats (4 columnas: Total, Presentes, Ausentes, Tardíos)
             val total = attendances.size
             val present = attendances.count { it.state == AttendanceStatus.PRESENT }
             val absent = attendances.count { it.state == AttendanceStatus.ABSENT }
             val late = attendances.count { it.state == AttendanceStatus.LATE }
-            // Ya no mostramos NA en el resumen
 
-            val columnWidth = (PAGE_WIDTH - 2 * MARGIN) / 4f // Ahora 4 columnas en lugar de 5
+            val columnWidth = (PAGE_WIDTH - 2 * MARGIN) / 4f
 
             var x = MARGIN.toFloat()
-            canvas.drawText("Total", x, y, headerPaint)
-            x += columnWidth
-            canvas.drawText("Presentes", x, y, headerPaint)
-            x += columnWidth
-            canvas.drawText("Ausentes", x, y, headerPaint)
-            x += columnWidth
+            canvas.drawText("Total", x, y, headerPaint); x += columnWidth
+            canvas.drawText("Presentes", x, y, headerPaint); x += columnWidth
+            canvas.drawText("Ausentes", x, y, headerPaint); x += columnWidth
             canvas.drawText("Tardíos", x, y, headerPaint)
 
             y += 20
-
             x = MARGIN.toFloat()
-            canvas.drawText(total.toString(), x, y, bodyPaint)
-            x += columnWidth
-            canvas.drawText(present.toString(), x, y, bodyPaint)
-            x += columnWidth
-            canvas.drawText(absent.toString(), x, y, bodyPaint)
-            x += columnWidth
+            canvas.drawText(total.toString(), x, y, bodyPaint); x += columnWidth
+            canvas.drawText(present.toString(), x, y, bodyPaint); x += columnWidth
+            canvas.drawText(absent.toString(), x, y, bodyPaint); x += columnWidth
             canvas.drawText(late.toString(), x, y, bodyPaint)
 
             return y
@@ -212,7 +205,7 @@ class PDFGenerator {
         ) {
             var y = startY
             val rowHeight = 25f
-            // ✅ CORREGIDO: Solo 4 columnas (SIN FIRMA)
+            // 4 columnas (SIN FIRMA)
             val columnWidths = floatArrayOf(50f, 220f, 120f, 120f) // #, Nombre, CI, Estado
 
             // Título
@@ -222,15 +215,10 @@ class PDFGenerator {
             // Encabezados
             var x = MARGIN.toFloat()
             val headerY = y
-
-            canvas.drawText("#", x + 10, headerY, headerPaint)
-            x += columnWidths[0]
-            canvas.drawText("Nombre", x + 10, headerY, headerPaint)
-            x += columnWidths[1]
-            canvas.drawText("Cédula", x + 10, headerY, headerPaint)
-            x += columnWidths[2]
+            canvas.drawText("#", x + 10, headerY, headerPaint); x += columnWidths[0]
+            canvas.drawText("Nombre", x + 10, headerY, headerPaint); x += columnWidths[1]
+            canvas.drawText("Cédula", x + 10, headerY, headerPaint); x += columnWidths[2]
             canvas.drawText("Estado", x + 10, headerY, headerPaint)
-            // ✅ YA NO HAY COLUMNA DE FIRMA
 
             // Línea bajo headers
             y += 5
@@ -278,7 +266,7 @@ class PDFGenerator {
                 canvas.drawText(attendance.ci, x + 10, rowY, bodyPaint)
                 x += columnWidths[2]
 
-                // ✅ ESTADO CORREGIDO - Mapeo más claro
+                // Estado con color
                 val statusPaint = Paint(bodyPaint).apply {
                     color = when (attendance.state) {
                         AttendanceStatus.PRESENT -> SUCCESS_COLOR
@@ -288,21 +276,18 @@ class PDFGenerator {
                     }
                     typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 }
-
                 val statusText = when (attendance.state) {
                     AttendanceStatus.PRESENT -> "✓ PRESENTE"
-                    AttendanceStatus.ABSENT -> "✗ AUSENTE"  // ✅ ESTO DEBE APARECER CUANDO MARCAS AUSENTE
+                    AttendanceStatus.ABSENT -> "✗ AUSENTE"
                     AttendanceStatus.LATE -> "⚠ TARDÍO"
-                    AttendanceStatus.NA -> "- PENDIENTE"  // ✅ CAMBIADO: Mejor que "Sin Registro"
+                    AttendanceStatus.NA -> "- PENDIENTE"
                 }
                 canvas.drawText(statusText, x + 10, rowY, statusPaint)
-
-                // ✅ YA NO HAY SECCIÓN DE FIRMA AQUÍ
 
                 y += rowHeight
             }
 
-            // Pie (sin cambios)
+            // Pie de página
             val footerY = PAGE_HEIGHT - 60f
             val footerPaint = Paint().apply {
                 color = MUTED_COLOR
@@ -319,7 +304,36 @@ class PDFGenerator {
             )
         }
 
-        @Suppress("unused") // puede que no lo uses siempre
+        // ---- Acciones con el archivo ----
+
+        /** Abrir el PDF directamente en un visor (recomendado para tu caso) */
+        fun openPDF(context: Context, file: File) {
+            try {
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/pdf")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                try {
+                    Toast.makeText(
+                        context,
+                        "No se encontró una app para abrir PDF.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (_: Exception) { /* no-op */ }
+            }
+        }
+
+        /** Compartir el PDF (por si alguna vez lo necesitas) */
         fun sharePDF(context: Context, file: File) {
             try {
                 val uri = FileProvider.getUriForFile(

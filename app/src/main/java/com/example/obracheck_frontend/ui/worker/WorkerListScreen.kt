@@ -446,7 +446,6 @@ fun WorkerListScreen(
                                     // 2. Obtener nombre de la obra (por ahora fijo, luego puedes mejorarlo)
                                     val siteName = "Obra $siteId"
 
-                                    // 3. Generar PDF
                                     PDFGenerator.generateAttendanceReport(
                                         context = context,
                                         attendances = attendances,
@@ -454,16 +453,11 @@ fun WorkerListScreen(
                                         date = dateString,
                                         onSuccess = { file ->
                                             isGeneratingPdf = false
-                                            // Mostrar mensaje de éxito
-                                            message = "PDF generado exitosamente: ${file.name}"
-                                            showMessage = true
-
-                                            // Compartir automáticamente
-                                            PDFGenerator.sharePDF(context, file)
+                                            // 👇 Abrir el visor de PDF directamente
+                                            PDFGenerator.openPDF(context, file)
                                         },
                                         onError = { error ->
                                             isGeneratingPdf = false
-                                            // Mostrar error
                                             message = "Error al generar PDF: $error"
                                             showMessage = true
                                         }
