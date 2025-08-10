@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.obracheck_frontend.model.domain.Worker
 import com.example.obracheck_frontend.viewmodel.WorkerViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 // Paleta ObraCheck consistente
 private val Brand = Color(0xFF1F2A33)   // gris carbón
@@ -125,52 +127,137 @@ fun WorkerListScreen(
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Estado del Equipo",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Brand
-                    )
-
-                    Spacer(Modifier.height(8.dp))
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Barra superior amarilla característica
                     Box(
                         modifier = Modifier
-                            .height(3.dp)
-                            .width(60.dp)
-                            .clip(RoundedCornerShape(999.dp))
+                            .fillMaxWidth()
+                            .height(4.dp)
                             .background(Accent)
                     )
 
-                    Spacer(Modifier.height(16.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        StatItem("${workers.size}", "Total", Brand)
+                        Text(
+                            text = "Estado del Equipo",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Brand
+                        )
 
+                        Spacer(Modifier.height(8.dp))
                         Box(
                             modifier = Modifier
-                                .width(1.dp)
-                                .height(40.dp)
-                                .background(Border)
+                                .height(3.dp)
+                                .width(60.dp)
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(Accent)
                         )
 
-                        StatItem(
-                            "${workers.map { it.role }.distinct().size}",
-                            "Roles",
-                            InfoBlue
-                        )
+                        Spacer(Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            StatItem("${workers.size}", "Total", Brand)
+
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(40.dp)
+                                    .background(Border)
+                            )
+
+                            StatItem(
+                                "${workers.map { it.role }.distinct().size}",
+                                "Roles",
+                                InfoBlue
+                            )
+                        }
+
+                        // Botón de Tomar Lista - NUEVO
+                        if (workers.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            Button(
+                                onClick = {
+                                    val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                                    navController.navigate("attendance/$siteId/$date")
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                                    .shadow(
+                                        elevation = 6.dp,
+                                        shape = RoundedCornerShape(16.dp),
+                                        clip = false
+                                    ),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Success,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.EventAvailable,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "Tomar Lista",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = "Registrar asistencia hoy",
+                                            fontSize = 12.sp,
+                                            color = Color.White.copy(alpha = 0.9f)
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
+            // Separador visual con título para la sección de trabajadores
+            if (workers.isNotEmpty()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "Trabajadores Registrados",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Brand
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(2.dp)
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(Border.copy(alpha = 0.5f))
+                    )
+                }
+            }
 
             // Lista o mensaje vacío
             if (workers.isEmpty()) {

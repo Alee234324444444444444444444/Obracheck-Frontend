@@ -96,4 +96,20 @@ interface ApiService {
 
     @DELETE("api/evidences/{id}")
     suspend fun deleteEvidence(@Path("id") id: Long)
+
+
+    // -------------------- ATTENDANCES --------------------
+
+    /** Obtener asistencia por sitio y fecha */
+    @GET("api/attendances/site/{siteId}/date/{date}")
+    suspend fun getAttendancesBySiteAndDate(
+        @Path("siteId") siteId: Long,
+        @Path("date") date: String // formato yyyy-MM-dd
+    ): AttendanceListResponseDto
+
+    /** Registrar o actualizar asistencia en bloque */
+    @POST("api/attendances/bulk")
+    suspend fun upsertAttendancesBulk(
+        @Body request: AttendanceBulkUpsertRequestDto
+    ): List<AttendanceResponseDto>
 }

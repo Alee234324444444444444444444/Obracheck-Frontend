@@ -71,9 +71,13 @@ class WorkerViewModel(
     }
 
     fun deleteWorker(id: Long, onComplete: () -> Unit) = viewModelScope.launch {
-        repo.deleteWorker(id)
-        reloadCurrentSiteWorkers()
-        onComplete()
+        try {
+            repo.deleteWorker(id)
+            reloadCurrentSiteWorkers()
+            onComplete()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun reloadCurrentSiteWorkers() {

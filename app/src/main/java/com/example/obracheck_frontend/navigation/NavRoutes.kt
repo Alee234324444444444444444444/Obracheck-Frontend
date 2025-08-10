@@ -7,6 +7,6 @@ object NavRoutes {
     const val SITE_FORM = "siteform?id={id}&userId={userId}"
     const val WORKER_LIST = "workerlist/{siteId}"
     const val WORKER_FORM = "workerform/{siteId}?editId={editId}"
-
+    const val ATTENDANCE_LIST = "attendance/{siteId}/{date}"
 
 }

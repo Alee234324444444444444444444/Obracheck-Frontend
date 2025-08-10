@@ -8,12 +8,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.obracheck_frontend.ui.attendance.AttendanceScreen
 import com.example.obracheck_frontend.ui.login.LoginScreen
+import com.example.obracheck_frontend.ui.login.WelcomeScreen
 import com.example.obracheck_frontend.ui.site.SiteFormScreen
 import com.example.obracheck_frontend.ui.site.SiteListScreen
-import com.example.obracheck_frontend.ui.login.WelcomeScreen
 import com.example.obracheck_frontend.ui.worker.WorkerFormScreen
 import com.example.obracheck_frontend.ui.worker.WorkerListScreen
+import com.example.obracheck_frontend.viewmodel.AttendanceViewModel
 import com.example.obracheck_frontend.viewmodel.SiteViewModel
 import com.example.obracheck_frontend.viewmodel.UserViewModel
 import com.example.obracheck_frontend.viewmodel.WorkerViewModel
@@ -23,6 +25,7 @@ fun AppNavGraph(navController: NavHostController) {
     val siteViewModel = remember { SiteViewModel() }
     val userViewModel = remember { UserViewModel() }
     val workerViewModel = remember { WorkerViewModel() }
+    val attendanceViewModel = remember { AttendanceViewModel() } // 👈 nuevo
 
     NavHost(
         navController = navController,
@@ -34,7 +37,6 @@ fun AppNavGraph(navController: NavHostController) {
                 viewModel = userViewModel
             )
         }
-
 
         composable(
             route = NavRoutes.WELCOME,
@@ -51,6 +53,27 @@ fun AppNavGraph(navController: NavHostController) {
                 navController = navController,
                 userId = userId,
                 userName = userName
+            )
+        }
+
+        composable(
+            route = NavRoutes.ATTENDANCE_LIST,
+            arguments = listOf(
+                navArgument("siteId") { type = NavType.LongType },
+                navArgument("date")   { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val siteId = backStackEntry.arguments?.getLong("siteId") ?: 0L
+            val dateIso = backStackEntry.arguments?.getString("date") ?: ""
+
+            AttendanceScreen(
+                siteId = siteId,
+                dateIso = dateIso,
+                viewModel = attendanceViewModel,
+                onBack = { navController.popBackStack() },
+                onNavigateToWorkerList = {
+                    navController.navigate("workerlist/$siteId")  // 👈 AGREGAR ESTO
+                }
             )
         }
 
@@ -85,9 +108,7 @@ fun AppNavGraph(navController: NavHostController) {
                 siteViewModel = siteViewModel,
                 siteId = id,
                 userId = userId,
-                onSubmitComplete = {
-                    navController.popBackStack()
-                }
+                onSubmitComplete = { navController.popBackStack() }
             )
         }
 
@@ -105,9 +126,7 @@ fun AppNavGraph(navController: NavHostController) {
                 siteId = siteId,
                 editId = editId,
                 viewModel = workerViewModel,
-                onSubmitComplete = {
-                    navController.popBackStack()
-                }
+                onSubmitComplete = { navController.popBackStack() }
             )
         }
 
