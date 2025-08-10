@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.obracheck_frontend.ui.attendance.AttendanceScreen
 import com.example.obracheck_frontend.ui.login.LoginScreen
+import com.example.obracheck_frontend.ui.login.RegisterScreen
 import com.example.obracheck_frontend.ui.login.WelcomeScreen
 import com.example.obracheck_frontend.ui.site.SiteFormScreen
 import com.example.obracheck_frontend.ui.site.SiteListScreen
@@ -25,12 +26,14 @@ fun AppNavGraph(navController: NavHostController) {
     val siteViewModel = remember { SiteViewModel() }
     val userViewModel = remember { UserViewModel() }
     val workerViewModel = remember { WorkerViewModel() }
-    val attendanceViewModel = remember { AttendanceViewModel() } // 👈 nuevo
+    val attendanceViewModel = remember { AttendanceViewModel() }
 
     NavHost(
         navController = navController,
         startDestination = NavRoutes.LOGIN
     ) {
+
+        // 🟢 PANTALLA DE LOGIN (pantalla inicial)
         composable(NavRoutes.LOGIN) {
             LoginScreen(
                 navController = navController,
@@ -38,6 +41,15 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
+        // 🟢 PANTALLA DE REGISTRO (desde login con botón "Registrarse")
+        composable(NavRoutes.REGISTER) {
+            RegisterScreen(
+                navController = navController,
+                viewModel = userViewModel
+            )
+        }
+
+        // 🔵 PANTALLA DE BIENVENIDA (desde login exitoso)
         composable(
             route = NavRoutes.WELCOME,
             arguments = listOf(
@@ -56,6 +68,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
+        // 🔵 ASISTENCIA (sin cambios)
         composable(
             route = NavRoutes.ATTENDANCE_LIST,
             arguments = listOf(
@@ -72,11 +85,12 @@ fun AppNavGraph(navController: NavHostController) {
                 viewModel = attendanceViewModel,
                 onBack = { navController.popBackStack() },
                 onNavigateToWorkerList = {
-                    navController.navigate("workerlist/$siteId")  // 👈 AGREGAR ESTO
+                    navController.navigate("workerlist/$siteId")
                 }
             )
         }
 
+        // 🔵 LISTA DE SITIOS (sin cambios)
         composable(
             route = NavRoutes.SITE_LIST,
             arguments = listOf(navArgument("userId") { defaultValue = -1L })
@@ -94,6 +108,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
+        // 🔵 FORMULARIO DE SITIO (sin cambios)
         composable(
             route = NavRoutes.SITE_FORM,
             arguments = listOf(
@@ -112,6 +127,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
+        // 🔵 FORMULARIO DE TRABAJADOR (sin cambios)
         composable(
             route = NavRoutes.WORKER_FORM,
             arguments = listOf(
@@ -130,6 +146,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
+        // 🔵 LISTA DE TRABAJADORES (sin cambios)
         composable(
             route = NavRoutes.WORKER_LIST,
             arguments = listOf(navArgument("siteId") { defaultValue = -1L })
@@ -139,8 +156,10 @@ fun AppNavGraph(navController: NavHostController) {
             WorkerListScreen(
                 siteId = siteId,
                 navController = navController,
-                viewModel = workerViewModel
+                viewModel = workerViewModel,
+                attendanceVm = attendanceViewModel   
             )
+
         }
     }
 }

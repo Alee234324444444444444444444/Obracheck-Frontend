@@ -37,6 +37,21 @@ class UserViewModel(
         }
     }
 
+    fun loginUser(nombre: String, email: String, onResult: (User?) -> Unit) = viewModelScope.launch {
+        try {
+
+            val allUsers = repo.getAllUsers()
+            val user = allUsers.find {
+                it.name.equals(nombre, ignoreCase = true) &&
+                        it.email.equals(email, ignoreCase = true)
+            }
+            onResult(user)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            onResult(null)
+        }
+    }
+
     fun updateUser(id: Long, request: CreateUserRequestDto, onComplete: () -> Unit) = viewModelScope.launch {
         repo.updateUser(id, request)
         loadUsers()

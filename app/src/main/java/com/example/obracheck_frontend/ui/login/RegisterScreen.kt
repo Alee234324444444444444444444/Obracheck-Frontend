@@ -1,6 +1,6 @@
 package com.example.obracheck_frontend.ui.login
 
-import android.net.Uri
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.obracheck_frontend.R
+import com.example.obracheck_frontend.model.dto.CreateUserRequestDto
 import com.example.obracheck_frontend.viewmodel.UserViewModel
 
 // Colores del brand
@@ -38,7 +39,7 @@ private val Bg     = Color(0xFFF9FAFB)  // fondo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     navController: NavController,
     viewModel: UserViewModel
 ) {
@@ -105,7 +106,7 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Iniciar Sesión",
+                        text = "Crear cuenta en Obracheck",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Brand,
@@ -178,7 +179,7 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(20.dp))
 
-                    // Botón de login
+                    // Botón de registro
                     Button(
                         onClick = {
                             if (isLoading) return@Button
@@ -198,18 +199,17 @@ fun LoginScreen(
 
                             if (!hasError) {
                                 isLoading = true
-                                // Validar si el usuario existe con esos datos
-                                viewModel.loginUser(nombre, correo) { user ->
+                                val request = CreateUserRequestDto(nombre, correo)
+                                viewModel.createUser(request) { userId ->
                                     isLoading = false
-                                    if (user != null) {
-                                        val encodedName = Uri.encode(user.name)
-                                        navController.navigate("welcome/${user.id}/$encodedName") {
-                                            popUpTo("login") { inclusive = true }
+                                    if (userId != null) {
+                                        // Usuario creado exitosamente, ir al login
+                                        navController.navigate("login") {
+                                            popUpTo("register") { inclusive = true }
                                             launchSingleTop = true
                                         }
                                     } else {
-                                        // Credenciales incorrectas
-                                        nameError = "Usuario no encontrado o datos incorrectos"
+                                        emailError = "El correo ya está registrado"
                                     }
                                 }
                             }
@@ -232,11 +232,11 @@ fun LoginScreen(
                                 color = Color.White
                             )
                         } else {
-                            Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null)
+                            Icon(Icons.Default.PersonAdd, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
                         }
                         Text(
-                            if (isLoading) "Iniciando..." else "Iniciar Sesión",
+                            if (isLoading) "Creando cuenta..." else "Registrarse",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -244,16 +244,17 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(16.dp))
 
-                    // Enlace para ir al registro
+                    // Enlace para ir al login
                     TextButton(
                         onClick = {
-                            navController.navigate("register") {
+                            navController.navigate("login") {
+                                popUpTo("register") { inclusive = true }
                                 launchSingleTop = true
                             }
                         }
                     ) {
                         Text(
-                            "¿No tienes cuenta? Registrarse",
+                            "¿Ya tienes cuenta? Iniciar sesión",
                             color = Brand,
                             fontSize = 14.sp
                         )

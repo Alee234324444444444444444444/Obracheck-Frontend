@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
@@ -23,7 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.obracheck_frontend.model.domain.Worker
+import com.example.obracheck_frontend.utils.PDFGenerator
+import com.example.obracheck_frontend.viewmodel.AttendanceViewModel
 import com.example.obracheck_frontend.viewmodel.WorkerViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -37,17 +41,34 @@ private val Success = Color(0xFF10B981) // verde para estado activo
 private val Danger = Color(0xFFEF4444)  // rojo para eliminar
 private val CardBg = Color.White        // fondo de cards
 private val InfoBlue = Color(0xFF3B82F6) // azul para información
+private val ReportPurple = Color(0xFF8B5CF6) // morado para reportes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkerListScreen(
     siteId: Long,
     navController: NavController,
-    viewModel: WorkerViewModel = WorkerViewModel()
+    viewModel: WorkerViewModel = WorkerViewModel(),
+    attendanceVm: AttendanceViewModel
 ) {
+    // Obtener contexto
+    val context = LocalContext.current
+
     val workers by viewModel.workers.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedWorker by remember { mutableStateOf<Worker?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    var isGeneratingPdf by remember { mutableStateOf(false) }
+    var showMessage by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+
+    // Corrutina scope para manejar operaciones asíncronas
+    val coroutineScope = rememberCoroutineScope()
+
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis()
+    )
 
     LaunchedEffect(siteId) {
         viewModel.loadWorkersBySite(siteId)
@@ -180,10 +201,11 @@ fun WorkerListScreen(
                             )
                         }
 
-                        // Botón de Tomar Lista - NUEVO
+                        // Botones de acción cuando hay trabajadores
                         if (workers.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(20.dp))
 
+                            // Botón de Tomar Lista
                             Button(
                                 onClick = {
                                     val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -223,6 +245,61 @@ fun WorkerListScreen(
                                         )
                                         Text(
                                             text = "Registrar asistencia hoy",
+                                            fontSize = 12.sp,
+                                            color = Color.White.copy(alpha = 0.9f)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // Botón de Generar Reporte - IMPLEMENTACIÓN REAL
+                            Button(
+                                onClick = { showDatePicker = true },
+                                enabled = !isGeneratingPdf,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                                    .shadow(
+                                        elevation = 6.dp,
+                                        shape = RoundedCornerShape(16.dp),
+                                        clip = false
+                                    ),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = ReportPurple,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    if (isGeneratingPdf) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(20.dp),
+                                            color = Color.White,
+                                            strokeWidth = 2.dp
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.FileDownload,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = if (isGeneratingPdf) "Generando..." else "Generar Reporte",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = "Descargar PDF de asistencia",
                                             fontSize = 12.sp,
                                             color = Color.White.copy(alpha = 0.9f)
                                         )
@@ -341,6 +418,163 @@ fun WorkerListScreen(
                 }
             }
         }
+    }
+
+    // Selector de fecha para reporte
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            selectedDate = java.time.Instant.ofEpochMilli(millis)
+                                .atZone(java.time.ZoneId.systemDefault())
+                                .toLocalDate()
+
+                            isGeneratingPdf = true
+                            showDatePicker = false // Cerrar el diálogo inmediatamente
+
+                            // IMPLEMENTACIÓN REAL - Reemplaza la simulación
+                            coroutineScope.launch {
+                                try {
+                                    val dateString = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+                                    // 1. Obtener datos de asistencia usando AttendanceViewModel
+                                    val attendances = attendanceVm.getAttendancesForPDF(siteId, dateString)
+
+                                    // 2. Obtener nombre de la obra (por ahora fijo, luego puedes mejorarlo)
+                                    val siteName = "Obra $siteId"
+
+                                    // 3. Generar PDF
+                                    PDFGenerator.generateAttendanceReport(
+                                        context = context,
+                                        attendances = attendances,
+                                        siteName = siteName,
+                                        date = dateString,
+                                        onSuccess = { file ->
+                                            isGeneratingPdf = false
+                                            // Mostrar mensaje de éxito
+                                            message = "PDF generado exitosamente: ${file.name}"
+                                            showMessage = true
+
+                                            // Compartir automáticamente
+                                            PDFGenerator.sharePDF(context, file)
+                                        },
+                                        onError = { error ->
+                                            isGeneratingPdf = false
+                                            // Mostrar error
+                                            message = "Error al generar PDF: $error"
+                                            showMessage = true
+                                        }
+                                    )
+
+                                } catch (e: Exception) {
+                                    isGeneratingPdf = false
+                                    message = "Error inesperado: ${e.message}"
+                                    showMessage = true
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                    }
+                ) {
+                    Text("Generar PDF", color = ReportPurple, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancelar", color = Muted)
+                }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    selectedDayContainerColor = ReportPurple,
+                    todayDateBorderColor = ReportPurple,
+                    todayContentColor = ReportPurple
+                ),
+                title = {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.CalendarMonth,
+                                contentDescription = null,
+                                tint = ReportPurple,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Seleccionar Fecha",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Brand
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Elige la fecha para generar el reporte de asistencia",
+                            fontSize = 14.sp,
+                            color = Muted,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                },
+                headline = null
+            )
+        }
+    }
+
+    // Diálogo de mensaje (éxito o error)
+    if (showMessage) {
+        AlertDialog(
+            onDismissRequest = { showMessage = false },
+            icon = {
+                Icon(
+                    if (message.contains("exitosamente")) Icons.Default.CheckCircle else Icons.Default.Error,
+                    contentDescription = null,
+                    tint = if (message.contains("exitosamente")) Success else Danger,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = if (message.contains("exitosamente")) "¡Éxito!" else "Error",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Brand
+                )
+            },
+            text = {
+                Text(
+                    text = message,
+                    fontSize = 16.sp,
+                    color = Brand,
+                    textAlign = TextAlign.Center
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showMessage = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (message.contains("exitosamente")) Success else Danger,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.height(48.dp)
+                ) {
+                    Text("Entendido", fontWeight = FontWeight.Bold)
+                }
+            },
+            containerColor = CardBg,
+            shape = RoundedCornerShape(20.dp)
+        )
     }
 
     // Diálogo de eliminar con estilo ObraCheck
@@ -642,9 +876,10 @@ private fun StatItem(value: String, label: String, color: Color) {
         Text(
             text = value,
             fontSize = 24.sp,
-            fontWeight = FontWeight.ExtraBold,
+                    fontWeight = FontWeight.Bold,
             color = color
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
             fontSize = 12.sp,
