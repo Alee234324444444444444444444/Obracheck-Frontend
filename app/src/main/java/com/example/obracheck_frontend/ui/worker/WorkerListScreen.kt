@@ -429,8 +429,9 @@ fun WorkerListScreen(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             selectedDate = java.time.Instant.ofEpochMilli(millis)
-                                .atZone(java.time.ZoneId.systemDefault())
+                                .atZone(java.time.ZoneOffset.UTC)
                                 .toLocalDate()
+
 
                             isGeneratingPdf = true
                             showDatePicker = false // Cerrar el diálogo inmediatamente
