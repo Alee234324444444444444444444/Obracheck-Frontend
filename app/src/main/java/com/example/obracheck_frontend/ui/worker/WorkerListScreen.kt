@@ -411,6 +411,11 @@ fun WorkerListScreen(
                             onDelete = {
                                 selectedWorker = worker
                                 showDeleteDialog = true
+                            },
+
+                            onProgressClick = {
+
+                                navController.navigate("progresslist/$siteId/${worker.id}")
                             }
                         )
                     }
@@ -652,7 +657,8 @@ fun WorkerListScreen(
 fun WorkerCard(
     worker: Worker,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onProgressClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -826,11 +832,13 @@ fun WorkerCard(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Badge de estado activo
+                // 👇 FILA INFERIOR CON BADGE Y BOTÓN PROGRESS (IGUAL QUE EN SITE)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Badge de estado con estilo ObraCheck
                     Surface(
                         shape = RoundedCornerShape(20.dp),
                         color = Success.copy(alpha = 0.1f),
@@ -859,6 +867,30 @@ fun WorkerCard(
                             )
                         }
                     }
+
+                    // 👇 BOTÓN DE PROGRESS CON ESTILO OBRACHECK (IGUAL QUE EL DE "EQUIPO")
+                    Button(
+                        onClick = { onProgressClick() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Brand,
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.height(36.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.TrendingUp,
+                            contentDescription = "Progreso",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            "Progreso",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
@@ -871,7 +903,7 @@ private fun StatItem(value: String, label: String, color: Color) {
         Text(
             text = value,
             fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Bold,
             color = color
         )
         Spacer(modifier = Modifier.height(4.dp))

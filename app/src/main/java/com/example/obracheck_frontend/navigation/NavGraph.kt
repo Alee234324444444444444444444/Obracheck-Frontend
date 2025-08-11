@@ -12,14 +12,17 @@ import com.example.obracheck_frontend.ui.attendance.AttendanceScreen
 import com.example.obracheck_frontend.ui.login.LoginScreen
 import com.example.obracheck_frontend.ui.login.RegisterScreen
 import com.example.obracheck_frontend.ui.login.WelcomeScreen
+import com.example.obracheck_frontend.ui.progress.ProgressFormScreen
 import com.example.obracheck_frontend.ui.site.SiteFormScreen
 import com.example.obracheck_frontend.ui.site.SiteListScreen
 import com.example.obracheck_frontend.ui.worker.WorkerFormScreen
 import com.example.obracheck_frontend.ui.worker.WorkerListScreen
+import com.example.obracheck_frontend.ui.progress.ProgressListScreen
 import com.example.obracheck_frontend.viewmodel.AttendanceViewModel
 import com.example.obracheck_frontend.viewmodel.SiteViewModel
 import com.example.obracheck_frontend.viewmodel.UserViewModel
 import com.example.obracheck_frontend.viewmodel.WorkerViewModel
+import com.example.obracheck_frontend.viewmodel.ProgressViewModel
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -27,13 +30,14 @@ fun AppNavGraph(navController: NavHostController) {
     val userViewModel = remember { UserViewModel() }
     val workerViewModel = remember { WorkerViewModel() }
     val attendanceViewModel = remember { AttendanceViewModel() }
+    val progressViewModel = remember { ProgressViewModel() }
 
     NavHost(
         navController = navController,
         startDestination = NavRoutes.LOGIN
     ) {
 
-        // 🟢 PANTALLA DE LOGIN (pantalla inicial)
+        // 🟢 LOGIN
         composable(NavRoutes.LOGIN) {
             LoginScreen(
                 navController = navController,
@@ -41,7 +45,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 🟢 PANTALLA DE REGISTRO (desde login con botón "Registrarse")
+        // 🟢 REGISTRO
         composable(NavRoutes.REGISTER) {
             RegisterScreen(
                 navController = navController,
@@ -49,7 +53,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 🔵 PANTALLA DE BIENVENIDA (desde login exitoso)
+        // 🔵 BIENVENIDA
         composable(
             route = NavRoutes.WELCOME,
             arguments = listOf(
@@ -68,7 +72,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 🔵 ASISTENCIA (sin cambios)
+        // 🔵 ASISTENCIA
         composable(
             route = NavRoutes.ATTENDANCE_LIST,
             arguments = listOf(
@@ -90,7 +94,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 🔵 LISTA DE SITIOS (sin cambios)
+        // 🔵 LISTA DE SITIOS
         composable(
             route = NavRoutes.SITE_LIST,
             arguments = listOf(navArgument("userId") { defaultValue = -1L })
@@ -108,7 +112,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 🔵 FORMULARIO DE SITIO (sin cambios)
+        // 🔵 FORM SITIO
         composable(
             route = NavRoutes.SITE_FORM,
             arguments = listOf(
@@ -127,7 +131,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 🔵 FORMULARIO DE TRABAJADOR (sin cambios)
+        // 🔵 FORM TRABAJADOR
         composable(
             route = NavRoutes.WORKER_FORM,
             arguments = listOf(
@@ -146,7 +150,7 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 🔵 LISTA DE TRABAJADORES (sin cambios)
+        // 🔵 LISTA DE TRABAJADORES
         composable(
             route = NavRoutes.WORKER_LIST,
             arguments = listOf(navArgument("siteId") { defaultValue = -1L })
@@ -157,9 +161,51 @@ fun AppNavGraph(navController: NavHostController) {
                 siteId = siteId,
                 navController = navController,
                 viewModel = workerViewModel,
-                attendanceVm = attendanceViewModel   
+                attendanceVm = attendanceViewModel
             )
+        }
 
+
+        // import com.example.obracheck_frontend.ui.progress.ProgressFormScreen
+        composable(
+            route = NavRoutes.PROGRESS_FORM,
+            arguments = listOf(
+                navArgument("siteId") { type = NavType.LongType },
+                navArgument("workerId") { type = NavType.LongType },
+                navArgument("editId") { defaultValue = -1L }
+            )
+        ) { backStackEntry ->
+            val siteId = backStackEntry.arguments?.getLong("siteId") ?: -1L
+            val workerId = backStackEntry.arguments?.getLong("workerId") ?: -1L
+            val editId = backStackEntry.arguments?.getLong("editId")?.takeIf { it != -1L }
+
+            ProgressFormScreen(
+                siteId = siteId,
+                workerId = workerId,
+                editId = editId,
+                navController = navController,
+                viewModel = progressViewModel
+            )
+        }
+
+
+        // 🟣 LISTA DE PROGRESOS POR WORKER
+        composable(
+            route = NavRoutes.PROGRESS_LIST,
+            arguments = listOf(
+                navArgument("siteId") { type = NavType.LongType },
+                navArgument("workerId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val siteId = backStackEntry.arguments?.getLong("siteId") ?: -1L
+            val workerId = backStackEntry.arguments?.getLong("workerId") ?: -1L
+
+            ProgressListScreen(
+                siteId = siteId,
+                workerId = workerId,
+                navController = navController,
+                viewModel = progressViewModel
+            )
         }
     }
 }
