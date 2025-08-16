@@ -1,14 +1,16 @@
 package com.example.obracheck_frontend.model.dto
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class AttendanceResponseDto(
     val id: Long,
-    val workerId: Long,
-    val workerName: String,
+    @Json(name = "worker_id") val workerId: Long,
+    @Json(name = "worker_name") val workerName: String,
     val ci: String? = null,
-    val siteId: Long,
-    val siteName: String,
-    val date: String,              // yyyy-MM-dd
+    @Json(name = "site_id") val siteId: Long,
+    @Json(name = "site_name") val siteName: String,
+    val date: String,
     val status: AttendanceStatus
 )

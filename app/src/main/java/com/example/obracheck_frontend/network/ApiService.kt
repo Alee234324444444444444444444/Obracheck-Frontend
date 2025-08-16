@@ -101,9 +101,9 @@ interface ApiService {
     // -------------------- ATTENDANCES --------------------
 
     /** Obtener asistencia por sitio y fecha */
-    @GET("api/attendances/site/{siteId}/date/{date}")
+    @GET("api/attendances/site/{site_id}/date/{date}")
     suspend fun getAttendancesBySiteAndDate(
-        @Path("siteId") siteId: Long,
+        @Path("site_id") siteId: Long,
         @Path("date") date: String // formato yyyy-MM-dd
     ): AttendanceListResponseDto
 
