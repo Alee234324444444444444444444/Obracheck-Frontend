@@ -1,0 +1,27 @@
+# .dockerignore para proyecto Android
+
+# Build folders
+build/
+*/build/
+.gradle/
+local.properties
+
+# IDE files
+.idea/
+*.iml
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# APK files (si no los necesitas en la imagen)
+*.apk
+*.aab

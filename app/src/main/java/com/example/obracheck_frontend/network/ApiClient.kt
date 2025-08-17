@@ -7,7 +7,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 object ApiClient {
 
-    private const val BASE_URL = "http://192.168.100.6:8080"
+
+    private val BASE_URL = System.getenv("BACKEND_URL") ?: "http://192.168.100.6:8080"
 
     private val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())

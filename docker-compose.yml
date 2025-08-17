@@ -1,0 +1,23 @@
+services:
+  android-frontend:
+    build: .
+    container_name: obracheck-android-frontend
+    volumes:
+      - .:/app
+      - android-gradle-cache:/root/.gradle
+    environment:
+      # Nombre exacto del contenedor de tu backend
+      - BACKEND_URL=http://192.168.100.6:8080
+    networks:
+      - obracheck-backend_default
+    # Puerto para ADB debugging
+    ports:
+      - "5037:5037"
+
+volumes:
+  android-gradle-cache:
+
+networks:
+  obracheck-backend_default:
+    # Usar la red existente de tu backend
+    external: true
