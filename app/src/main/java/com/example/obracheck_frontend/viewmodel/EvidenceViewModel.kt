@@ -92,6 +92,23 @@ class EvidenceViewModel(
         }
     }
 
+    // 👇 AGREGAR ESTE MÉTODO EN TU EvidenceViewModel (después del método reloadCurrent)
+
+    /** Para PDF: obtiene evidencias de un progreso específico de forma suspendida */
+    suspend fun getEvidencesForPDF(progressId: Long): List<Evidence> {
+        return try {
+            val all = repo.getAllEvidences()
+            val filtered = all.filter { it.progressId == progressId }
+            // Ordenar por fecha de subida descendente, luego por ID descendente
+            filtered.sortedWith(
+                compareByDescending<Evidence> { it.uploadDate }.thenByDescending { it.id }
+            )
+        } catch (e: Exception) {
+            Log.e("EvidenceViewModel", "Error obteniendo evidencias para PDF: ${e.message}", e)
+            emptyList()
+        }
+    }
+
     private fun reloadCurrent() {
         if (currentProgressId != -1L) {
             loadEvidencesByProgress(currentProgressId)
