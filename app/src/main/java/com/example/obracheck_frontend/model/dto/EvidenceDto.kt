@@ -10,5 +10,6 @@ data class EvidenceDto(
     @Json(name = "original_file_name") val originalFileName: String,
     @Json(name = "content_type") val contentType: String,
     @Json(name = "file_size") val fileSize: Long,
-    @Json(name = "upload_date") val uploadDate: String
+    @Json(name = "upload_date") val uploadDate: String,
+    @Json(name = "progress_id") val progressId: Long
 )

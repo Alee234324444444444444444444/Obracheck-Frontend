@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.obracheck_frontend.ui.attendance.AttendanceScreen
+import com.example.obracheck_frontend.ui.evidence.EvidenceFormScreen
+import com.example.obracheck_frontend.ui.evidence.EvidenceListScreen
 import com.example.obracheck_frontend.ui.login.LoginScreen
 import com.example.obracheck_frontend.ui.login.RegisterScreen
 import com.example.obracheck_frontend.ui.login.WelcomeScreen
@@ -19,6 +21,7 @@ import com.example.obracheck_frontend.ui.worker.WorkerFormScreen
 import com.example.obracheck_frontend.ui.worker.WorkerListScreen
 import com.example.obracheck_frontend.ui.progress.ProgressListScreen
 import com.example.obracheck_frontend.viewmodel.AttendanceViewModel
+import com.example.obracheck_frontend.viewmodel.EvidenceViewModel
 import com.example.obracheck_frontend.viewmodel.SiteViewModel
 import com.example.obracheck_frontend.viewmodel.UserViewModel
 import com.example.obracheck_frontend.viewmodel.WorkerViewModel
@@ -31,6 +34,7 @@ fun AppNavGraph(navController: NavHostController) {
     val workerViewModel = remember { WorkerViewModel() }
     val attendanceViewModel = remember { AttendanceViewModel() }
     val progressViewModel = remember { ProgressViewModel() }
+    val evidenceViewModel = remember { EvidenceViewModel() }
 
     NavHost(
         navController = navController,
@@ -187,6 +191,43 @@ fun AppNavGraph(navController: NavHostController) {
                 viewModel = progressViewModel
             )
         }
+
+        // 🟣 LISTA DE EVIDENCIAS POR PROGRESS
+        composable(
+            route = NavRoutes.EVIDENCE_LIST,
+            arguments = listOf(
+                navArgument("progressId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val progressId = backStackEntry.arguments?.getLong("progressId") ?: -1L
+
+            EvidenceListScreen(
+                progressId = progressId,
+                navController = navController,
+                viewModel = evidenceViewModel   // ✅ antes estaba null
+            )
+        }
+
+        // 🟣 FORM DE EVIDENCIA (crear/editar)
+        composable(
+            route = NavRoutes.EVIDENCE_FORM,
+            arguments = listOf(
+                navArgument("progressId") { type = NavType.LongType },
+                navArgument("editId") { defaultValue = -1L }
+            )
+        ) { backStackEntry ->
+            val progressId = backStackEntry.arguments?.getLong("progressId") ?: -1L
+            val editId = backStackEntry.arguments?.getLong("editId")?.takeIf { it != -1L }
+
+            EvidenceFormScreen(
+                progressId = progressId,
+                editId = editId,               // null => crear; != null => editar
+                navController = navController,
+                viewModel = evidenceViewModel
+            )
+        }
+
+
 
 
         // 🟣 LISTA DE PROGRESOS POR WORKER

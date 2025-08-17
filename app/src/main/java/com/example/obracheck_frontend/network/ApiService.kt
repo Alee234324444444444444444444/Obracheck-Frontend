@@ -2,6 +2,8 @@ package com.example.obracheck_frontend.network
 
 import com.example.obracheck_frontend.model.dto.*
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.http.*
 
 interface ApiService {
@@ -80,19 +82,20 @@ interface ApiService {
     @Multipart
     @POST("api/evidences/upload")
     suspend fun uploadEvidence(
-        @Part file: MultipartBody.Part,
-        @Part("progressId") progressId: Long
+        @Part filePart: MultipartBody.Part,
+        @Part("progress_id") progressId: RequestBody
     ): EvidenceUploadResponseDto
 
     @Multipart
     @PUT("api/evidences/{id}")
     suspend fun updateEvidence(
         @Path("id") id: Long,
-        @Part file: MultipartBody.Part
+        @Part filePart: MultipartBody.Part
     ): EvidenceUploadResponseDto
 
+    @Streaming
     @GET("api/evidences/{id}/download")
-    suspend fun downloadEvidence(@Path("id") id: Long): ByteArray
+    suspend fun downloadEvidence(@Path("id") id: Long): ResponseBody
 
     @DELETE("api/evidences/{id}")
     suspend fun deleteEvidence(@Path("id") id: Long)

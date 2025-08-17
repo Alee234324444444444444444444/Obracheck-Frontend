@@ -11,7 +11,9 @@ fun EvidenceDto.toDomain(): Evidence = Evidence(
     originalFileName = originalFileName,
     contentType = contentType,
     fileSize = fileSize,
-    uploadDate = uploadDate
+    uploadDate = uploadDate,
+    progressId = progressId
+
 )
 
 fun EvidenceSummaryDto.toDomain(): EvidenceSummary = EvidenceSummary(

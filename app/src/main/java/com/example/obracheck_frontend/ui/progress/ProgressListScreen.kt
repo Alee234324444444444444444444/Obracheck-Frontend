@@ -273,6 +273,7 @@ fun ProgressListScreen(
                     items(progresses, key = { it.id }) { progress ->
                         ProgressCard(
                             progress = progress,
+                            navController = navController,
                             onEdit = {
                                 navController.navigate("progressform/$siteId/$workerId?editId=${progress.id}")
                             },
@@ -363,6 +364,7 @@ fun ProgressListScreen(
 @Composable
 fun ProgressCard(
     progress: Progress,
+    navController: NavController,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -455,7 +457,7 @@ fun ProgressCard(
                                 },
                                 text = {
                                     Text(
-                                        "Editar",
+                                        "Actualizar",
                                         color = Brand,
                                         fontWeight = FontWeight.Medium
                                     )
@@ -571,7 +573,7 @@ fun ProgressCard(
                     Button(
                         onClick = {
                             // Aquí puedes navegar a las evidencias si tienes esa funcionalidad
-                            // navController.navigate("evidences/${progress.id}")
+                            navController.navigate("evidencelist/${progress.id}")
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Brand, // Cambiado de EvidenceGreen a Brand

@@ -6,7 +6,8 @@ data class Evidence(
     val originalFileName: String,
     val contentType: String,
     val fileSize: Long,
-    val uploadDate: String
+    val uploadDate: String,
+    val progressId: Long
 )
 
 data class EvidenceSummary(
